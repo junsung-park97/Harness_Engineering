@@ -57,7 +57,8 @@
 
 ## 메인 에이전트의 경계
 
-- `/implement`에 들어가는 코드 변경은 **무조건 implementer 서브에이전트 경유**. 메인 에이전트가 직접 `Edit`/`Write`로 src 코드를 수정하지 않는다.
+- `/implement`에 들어가는 코드 변경은 **무조건 backend-implementer 또는 frontend-implementer 서브에이전트 경유**. 메인 에이전트가 직접 `Edit`/`Write`로 src 코드를 수정하지 않는다.
+- 메인 에이전트는 `/implement` 진입 시 `superpowers:test-driven-development` 스킬로 각 task의 실패 테스트를 먼저 작성한 뒤, plan task의 `worker:` 필드에 따라 분기하여 **병렬 dispatch** 한다. frontend task는 `frontend-implementer` (자체적으로 `frontend-design` 스킬 호출), 그 외는 `backend-implementer` 로.
 - 예외 1: `/review`의 CRITICAL fix 단계 — 메인 에이전트가 직접 수정한다.
 - 예외 2: `docs/` 및 `.claude/` 내부 파일 — 메인 에이전트가 직접 작성한다 (이것이 본 시스템의 1차 산출물).
 - `git push --force`, `gh pr merge`, `rm -rf` 같은 파괴적 동작은 사용자가 명시적으로 요청하지 않는 한 절대 수행하지 않는다.
@@ -70,7 +71,7 @@
 |---|---|---|---|
 | `/spec <요구사항>` | 자연어 | `docs/spec/<slug>.md` | 결정 발생 시 `docs/decisions/` 추가 |
 | `/plan [slug]` | (선택) spec slug | `docs/plan/<slug>.md` | 결정 발생 시 `docs/decisions/` 추가 |
-| `/implement [T<n>]` | (선택) task id | 코드 변경 + self-check 보고 | plan의 task status 갱신 |
+| `/implement [T<n>]` | (선택) task id | 메인의 사전 테스트 + 워커 코드 변경 + self-check 보고 | 병렬 dispatch + plan의 task status 갱신 |
 | `/review` | — | `docs/review/<...>.md`, 3-tier 분류 | CRITICAL fix + `docs/error-case/` + 2-strike 승격 |
 | `/pr` | — | `gh pr create` | PR URL 반환 |
 | `/decision <요약>` | 자연어 | `docs/decisions/YYYY-MM-DD-<sig>.md` | — |
